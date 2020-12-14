@@ -1,7 +1,10 @@
 name:                aoc2020
 version:             0.1.0
 github:              "blmage/aoc2020"
-author:              "blmage"
+license:             MIT
+author:              "Benoît Leulliette"
+maintainer:          "benoit.leulliette@gmail.com"
+copyright:           "2020 Benoît Leulliette"
 
 extra-source-files:
 - README.md
@@ -18,6 +21,7 @@ dependencies:
 - parsers-megaparsec
 - relude
 - singletons
+- singletons-dict-getter
 - streaming
 - transformers
 - void

@@ -1,17 +1,21 @@
 {-# LANGUAGE DeriveFoldable      #-}
 {-# LANGUAGE DeriveTraversable   #-}
 {-# LANGUAGE ScopedTypeVariables #-}
+{-# LANGUAGE TemplateHaskell     #-}
 
 module Main where
 
 import Data.Constraint (Dict (..))
 import Data.List (intercalate)
 import Data.Singletons (withSomeSing)
+import Data.Singletons.Dict (mkPartialDictGetter)
 import GHC.Exts (IsList (..))
 
 import Day01 ()
 import Days
 
+
+$(mkPartialDictGetter ''SDay ''Solved)
 
 main :: IO ()
 main = loop
@@ -35,15 +39,8 @@ main = loop
                         <> ": "
                         <> either ("*error* " <>) ("\n" <>) solution
 
-
--- | Returns 'Just' the 'Solved' 'Dict' for a 'Solved' 'Day', otherwise 'Nothing'.
-solvedDict :: forall (day :: Day). SDay day -> Maybe (Dict (Solved day))
-solvedDict = \case
-    SDay1 -> Just Dict
-    _     -> Nothing
-
 -- | Returns 'Just' the printable solutions for a 'Solved' 'Day', otherwise 'Nothing'.
 daySolutions :: forall (day :: Day) a. SDay day -> IO (Maybe [Either String String])
-daySolutions day = case solvedDict day of
+daySolutions day = case daySolvedDict day of
     Nothing   -> pure Nothing
     Just Dict -> Just <$> traverse (solution @day) (enumFrom Puzzle1)

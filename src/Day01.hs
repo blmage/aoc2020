@@ -23,16 +23,17 @@ import Text.Parser.Token (decimal)
 import Days
 
 
-instance Solved Day1 where
-    solution = \case
-        Puzzle1 -> go $ findYearPair    2020
-        Puzzle2 -> go $ findYearTriplet 2020
+instance Solved 'Day1 where
+    solution puzzle
+        = withParsedInputLineList Day1 decimal
+        $ maybeToError "No result for the given list."
+        . fmap show
+        . go
       where
-        go f
-            = withParsedInputLineList Day1 decimal
-            $ maybeToError "No result for the given list."
-            . fmap show
-            . f
+        go :: [Integer] -> Maybe Integer
+        go = case puzzle of
+            Puzzle1 -> findYearPair    2020
+            Puzzle2 -> findYearTriplet 2020
 
 
 -- | Finds the pair of 'Integer's in the given list which sums up to the given year.
@@ -50,7 +51,7 @@ findYearPair year = \case
     _ -> Nothing
   where
     go :: Integer -> [Integer] -> Maybe Integer
-    go x = fmap (* x) . find ((== year) . (+ x))
+    go x = fmap (* x) . find (== (year - x))
 
 -- | Finds the triplet of 'Integer's in the given list which sums up to the given year.
 --
