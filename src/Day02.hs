@@ -92,10 +92,10 @@ databaseRowParser = do
 
 -- | Returns whether the given 'DatabaseRow' is valid according to the old policy.
 --
--- >>> isValidOldDatabaseRow (DatabaseRow (PasswordRule 'a' 1 3) (Password "abcde"))
+-- >>> isValidOldDatabaseRow (DatabaseRow (Password "abcde") (PasswordRule 'a' 1 3))
 -- True
 --
--- >>> isValidOldDatabaseRow (DatabaseRow (PasswordRule 'b' 1 3) (Password "cdefg"))
+-- >>> isValidOldDatabaseRow (DatabaseRow (Password "cdefg") (PasswordRule 'b' 1 3))
 -- False
 isValidOldDatabaseRow :: DatabaseRow -> Bool
 isValidOldDatabaseRow DatabaseRow { rowRule = PasswordRule {..}, rowPassword }
@@ -106,10 +106,10 @@ isValidOldDatabaseRow DatabaseRow { rowRule = PasswordRule {..}, rowPassword }
 
 -- | Returns whether the given 'DatabaseRow' is valid according to the new policy.
 --
--- >>> isValidNewDatabaseRow (DatabaseRow (PasswordRule 'a' 1 3) (Password "abcde"))
+-- >>> isValidNewDatabaseRow (DatabaseRow (Password "abcde") (PasswordRule 'a' 1 3))
 -- True
 --
--- >>> isValidNewDatabaseRow (DatabaseRow (PasswordRule 'b' 1 3) (Password "cdefg"))
+-- >>> isValidNewDatabaseRow (DatabaseRow (Password "cdefg") (PasswordRule 'b' 1 3))
 -- False
 isValidNewDatabaseRow :: DatabaseRow -> Bool
 isValidNewDatabaseRow DatabaseRow { rowRule = PasswordRule {..}, rowPassword }
