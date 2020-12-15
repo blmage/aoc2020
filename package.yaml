@@ -13,7 +13,9 @@ description:         Solutions to Advent of Code 2020.
 
 dependencies:
 - base-noprelude >= 4.7 && < 5
+- cond
 - constraints
+- finite-typelits
 - megaparsec
 - monad-control
 - mtl
@@ -24,6 +26,7 @@ dependencies:
 - singletons-dict-getter
 - streaming
 - transformers
+- vector-sized
 - void
 
 default-extensions:
