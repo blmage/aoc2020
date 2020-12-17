@@ -12,6 +12,8 @@ import Data.Singletons.Dict (mkPartialDictGetter)
 import GHC.Exts (IsList (..))
 
 import Day01 ()
+import Day02 ()
+import Day03 ()
 import Days
 
 
