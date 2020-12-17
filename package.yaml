@@ -1,5 +1,5 @@
 name:                aoc2020
-version:             0.3.0
+version:             0.4.0
 github:              "blmage/aoc2020"
 license:             MIT
 author:              "Benoît Leulliette"
@@ -15,6 +15,7 @@ dependencies:
 - base-noprelude >= 4.7 && < 5
 - cond
 - constraints
+- containers
 - finite-typelits
 - megaparsec
 - monad-control
@@ -24,8 +25,11 @@ dependencies:
 - relude
 - singletons
 - singletons-dict-getter
+- split
 - streaming
+- string-interpolate
 - transformers
+- typerep-map
 - vector-sized
 - void
 

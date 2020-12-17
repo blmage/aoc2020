@@ -40,6 +40,7 @@ module Days
 
       -- * Parsing
     , Parser
+    , runParser
     ) where
 
 import Control.Monad ((<=<))
@@ -51,8 +52,11 @@ import Streaming
 import System.IO (FilePath, IOMode (ReadMode), withFile)
 import Text.Megaparsec (parse)
 import Text.Megaparsec.Parsers (ParsecT (..))
+import Text.Parser.Char (CharParsing)
+import Text.Parser.Token (TokenParsing)
 
 import qualified Streaming.Prelude as S
+import qualified Text.Megaparsec as MP
 import qualified Text.Megaparsec.Error as MP
 
 
@@ -167,7 +171,13 @@ withInputLineList day f
     . S.fst' <=< S.toList
 
 -- | A parser for an input line.
-type Parser = ParsecT Void String Identity
+type Parser a
+     = forall s
+     . ( MP.Stream s
+       , CharParsing  (ParsecT Void s Identity)
+       , TokenParsing (ParsecT Void s Identity)
+       )
+    => ParsecT Void s Identity a
 
 -- | Applies a function to a 'Stream' of the input lines corresponding to the given 'Day',
 -- parsed using the given 'Parser'.
@@ -187,10 +197,7 @@ withParsedInputLineStream day parser f
     . S.scanned (const . (+ 1)) 0 id
   where
     parseLine :: MonadError String n => (String, Int) -> n a
-    parseLine (line, index)
-        = liftEither
-        $ first MP.errorBundlePretty
-        $ parse (unParsecT parser) ("Line " <> show index) line
+    parseLine (line, index) = runParser parser ("Line " <> show index) line
 
 -- | Applies a function to the list of the input lines corresponding to the given 'Day',
 -- parsed using the given 'Parser'.
@@ -207,6 +214,25 @@ withParsedInputLineList day parser f
     = withParsedInputLineStream day parser
     $ f
     . S.fst' <=< S.toList
+
+
+-- | Runs a 'Parser' in a 'MonadError' context.
+--
+-- In case of failure, provides a precise error message.
+runParser
+    :: ( MP.Stream s
+       , CharParsing  (ParsecT Void s Identity)
+       , TokenParsing (ParsecT Void s Identity)
+       , MonadError String n
+       )
+    => Parser a
+    -> String
+    -> s
+    -> n a
+runParser parser label
+    = liftEither
+    . first MP.errorBundlePretty
+    . parse (unParsecT parser) label
 
 
 -- | Returns an "Invalid [kind]: [value]." error message.
