@@ -33,6 +33,8 @@ module Days
     , withInputLineList
     , withParsedInputLineStream
     , withParsedInputLineList
+    , withGroupedParsedInputLineStream
+    , withGroupedParsedInputLineList
 
       -- * Error handling
     , invalid
@@ -46,6 +48,7 @@ module Days
 import Control.Monad ((<=<))
 import Control.Monad.Except (ExceptT, MonadError (..), liftEither, runExceptT)
 import Control.Monad.Trans.Control (MonadBaseControl, control)
+import Data.Char (isSpace)
 import Data.Singletons.TH
 import Data.Void (Void)
 import Streaming
@@ -179,6 +182,10 @@ type Parser a
        )
     => ParsecT Void s Identity a
 
+-- | Runs a 'Parser' against a single, indexed line of input.
+parseLine :: MonadError String n => Parser a -> (String, Int) -> n a
+parseLine parser (line, index) = runParser parser ("Line " <> show index) line
+
 -- | Applies a function to a 'Stream' of the input lines corresponding to the given 'Day',
 -- parsed using the given 'Parser'.
 withParsedInputLineStream
@@ -193,11 +200,8 @@ withParsedInputLineStream
 withParsedInputLineStream day parser f
     = withInputLineStreamM day
     $ f
-    . S.mapM parseLine
+    . S.mapM (parseLine parser)
     . S.scanned (const . (+ 1)) 0 id
-  where
-    parseLine :: MonadError String n => (String, Int) -> n a
-    parseLine (line, index) = runParser parser ("Line " <> show index) line
 
 -- | Applies a function to the list of the input lines corresponding to the given 'Day',
 -- parsed using the given 'Parser'.
@@ -211,9 +215,48 @@ withParsedInputLineList
     -> (forall n. (MonadIO n, MonadError String n) => [a] -> n b)
     -> m (Either String b)
 withParsedInputLineList day parser f
-    = withParsedInputLineStream day parser
+      = withParsedInputLineStream day parser
+      $ f
+    <=< S.toList_
+
+-- | Applies a function to a 'Stream' of the groups of input lines corresponding to the
+-- given 'Day' that are separated by blank lines.
+--
+-- As with 'withParsedInputLineStream', each line is parsed using the given 'Parser'.
+withGroupedParsedInputLineStream
+    :: forall m e a b
+     . ( MonadBaseControl IO m
+       , MonadIO m
+       )
+    => Day
+    -> Parser a
+    -> (forall n. (MonadIO n, MonadError String n) => Stream (Stream (Of a) n) n () -> n b)
+    -> m (Either String b)
+withGroupedParsedInputLineStream day parser f
+    = withInputLineStreamM day
     $ f
-    . S.fst' <=< S.toList
+    . S.maps (S.mapM $ parseLine parser)
+    . S.breaks (all isSpace . fst)
+    . S.scanned (const . (+ 1)) 0 id
+
+-- | Applies a function to a list of the groups of input lines corresponding to the given
+-- 'Day' that are separated by blank lines.
+--
+-- As with 'withParsedInputLineSList', each line is parsed using the given 'Parser'.
+withGroupedParsedInputLineList
+    :: forall m e a b
+     . ( MonadBaseControl IO m
+       , MonadIO m
+       )
+    => Day
+    -> Parser a
+    -> (forall n. (MonadIO n, MonadError String n) => [NonEmpty a] -> n b)
+    -> m (Either String b)
+withGroupedParsedInputLineList day parser f
+      = withGroupedParsedInputLineStream day parser
+      $ (f . catMaybes . fmap nonEmpty)
+    <=< S.toList_
+      . S.mapped S.toList
 
 
 -- | Runs a 'Parser' in a 'MonadError' context.
