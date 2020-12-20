@@ -1,5 +1,5 @@
 name:                aoc2020
-version:             0.6.0
+version:             0.7.0
 github:              "blmage/aoc2020"
 license:             MIT
 author:              "Benoît Leulliette"
@@ -18,10 +18,12 @@ dependencies:
 - containers
 - finite-typelits
 - groupBy
+- intern
 - megaparsec
 - microlens
 - monad-control
 - mtl
+- parser-combinators
 - parsers
 - parsers-megaparsec
 - relude
