@@ -55,11 +55,11 @@ newtype Answer = Answer { unAnswer :: Char }
 newtype Form = Form { unForm :: Set Answer }
 
 
--- | A parser for an 'Answer'.
+-- | A 'Parser' for an 'Answer'.
 answerParser :: Parser Answer
 answerParser = Answer <$> satisfyRange 'a' 'z'
 
--- | A parser for a 'Form'.
+-- | A 'Parser' for a 'Form'.
 formParser :: Parser Form
 formParser = Form . fromList <$> some answerParser
 

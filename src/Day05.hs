@@ -75,7 +75,7 @@ newtype SeatId = SeatId { unSeatId :: Int }
     deriving newtype (Bounded, Enum, Eq, Ord, Show)
 
 
--- | A parser for a 'Seat', based on two sequences of 'Instruction's.
+-- | A 'Parser' for a 'Seat', based on two sequences of 'Instruction's.
 seatParser :: Parser Seat
 seatParser = do
     seatRow    <- sequenceParser f b 7
@@ -90,7 +90,7 @@ seatParser = do
     b = char 'B' $> B
     r = char 'R' $> R
 
--- | A parser for a sequence of @n@ 'Instruction's relative to an axis.
+-- | A 'Parser' for a sequence of @n@ 'Instruction's relative to an axis.
 sequenceParser
     :: Parser (Instruction 'Start)
     -> Parser (Instruction 'End)
